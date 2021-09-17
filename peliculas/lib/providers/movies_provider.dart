@@ -4,6 +4,7 @@ import 'package:peliculas/models/credit_responses.dart';
 import 'package:peliculas/models/movie.dart';
 import 'package:peliculas/models/now_playing_response.dart';
 import 'package:peliculas/models/pupular_response.dart';
+import 'package:peliculas/models/search_movies_response.dart';
 
 
 class MoviesProvider extends ChangeNotifier{
@@ -56,5 +57,18 @@ class MoviesProvider extends ChangeNotifier{
     final creditResponse = CreditsResponse.fromJson(jsonData);
     moviesCast[movieId] = creditResponse.cast;
     return creditResponse.cast;
+  }
+
+  Future<List<Movie>>searchMovie(String query) async{
+    
+    final url = Uri.https(_baseUrl,'3/search/movie',{
+      'api_key': _apiKey,
+      'language': _language,
+      'query': query
+    });
+    final response = await http.get(url);
+    final searchResponse = SearchResponse.fromJson(response.body);
+    print(searchResponse.results);
+    return searchResponse.results;
   }
 }

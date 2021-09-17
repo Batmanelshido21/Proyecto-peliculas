@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:peliculas/helpers/debouncer.dart';
 import 'package:peliculas/models/credit_responses.dart';
 import 'package:peliculas/models/movie.dart';
 import 'package:peliculas/models/now_playing_response.dart';
@@ -18,6 +21,11 @@ class MoviesProvider extends ChangeNotifier{
   Map<int, List<Cast>> moviesCast={};
 
   int popularPage=0;
+  final debouncer = Debouncer(
+    duration:Duration(milliseconds: 500),
+  );
+  final StreamController<List<Movie>> _steamController= new StreamController.broadcast(); 
+  Stream<List<Movie>> get suggestionStream=>this._steamController.stream;
 
   MoviesProvider(){
     print('Movies provider inicializado');
@@ -70,5 +78,17 @@ class MoviesProvider extends ChangeNotifier{
     final searchResponse = SearchResponse.fromJson(response.body);
     print(searchResponse.results);
     return searchResponse.results;
+  }
+
+  void getSuggestionsByQuery(String query){
+    debouncer.value='';
+    debouncer.onValue=(value) async{
+      final results = await this.searchMovie(value);
+      this._steamController.add(results);
+    };
+    final timer = Timer.periodic(Duration(milliseconds: 300),(_){
+      debouncer.value = query;
+     });
+     Future.delayed(Duration(milliseconds: 301)).then((_) => timer.cancel());
   }
 }

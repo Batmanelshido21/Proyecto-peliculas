@@ -16,6 +16,7 @@ class Movie {
         required this.video,
         required this.voteAverage,
         required this.voteCount,
+        this.heroId
     });
 
     bool adult;
@@ -32,6 +33,7 @@ class Movie {
     bool video;
     double voteAverage;
     int voteCount;
+    String? heroId;
 
     get fullPosterImg{
       if(this.posterPath != null){
